@@ -8,6 +8,8 @@ Streaming platforms default to whichever content variant has the most volume, us
 
 The name is German for "always," a small nod to the language learning use case this generalises to.
 
+This is a small use case—British versus American English—but the same approach generalises. The same classifier logic could distinguish German from Swiss German, Brazilian Portuguese from European Portuguese, or a Parisian French accent from a Québécois one. Wherever a platform defaults to whichever variant has the most volume, immer is a pattern for correcting that inside the app people already use.
+
 ## How it works
 
 1. **Connect**: OAuth against your real Spotify account, scoped to read and modify playlists.
