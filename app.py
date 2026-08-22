@@ -858,10 +858,13 @@ if st.session_state.get("candidates"):
             st.markdown('<hr style="border-color:#282828;margin:0.4rem 0;">', unsafe_allow_html=True)
 
 # Open the selected Spotify playlist in a separate tab after adding episodes.
-st.link_button(
-    "Open playlist in Spotify ↗",
-    f"https://open.spotify.com/playlist/{target_playlist_id}",
-)
+_link_left, _link_center, _link_right = st.columns([1, 1, 1])
+with _link_center:
+    st.link_button(
+        "Open playlist in Spotify ↗",
+        f"https://open.spotify.com/playlist/{target_playlist_id}",
+        use_container_width=True,
+    )
 
 # Share section
 st.markdown("---")
