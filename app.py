@@ -92,10 +92,28 @@ footer {visibility: hidden;}
 
 /* ── Scorched-earth: kill ALL red focus outlines ── */
 /* Step 1: remove every focus outline globally */
-* { outline: none !important; }
+* { outline: none !important; outline-color: #1DB954 !important; }
 *:focus { outline: none !important; box-shadow: none !important; }
 *:focus-visible { outline: none !important; }
 *:active { outline: none !important; }
+
+/* Nuclear: override [data-baseweb] inline styles */
+[data-baseweb] *, [data-baseweb] *:focus,
+[data-baseweb] *:focus-within, [data-baseweb] *:focus-visible {
+    outline: none !important;
+    outline-color: #1DB954 !important;
+}
+[data-baseweb="select"] > div,
+[data-baseweb="select"] > div > div,
+[data-baseweb="select"] div[class] {
+    border-color: #404040 !important;
+    box-shadow: none !important;
+}
+[data-baseweb="select"] > div:focus-within,
+[data-baseweb="select"] div[class]:focus-within {
+    border-color: #1DB954 !important;
+    box-shadow: 0 0 0 2px #1DB954 !important;
+}
 
 /* Step 2: suppress browser validation red */
 input:invalid, select:invalid, textarea:invalid {
@@ -130,8 +148,6 @@ input:invalid, select:invalid, textarea:invalid {
 [data-baseweb="textarea"]:focus-within,
 [data-baseweb="textarea"] textarea:focus,
 .stTextInput > div > div:focus-within,
-.stTextInput > div > div > input:focus,
-.stTextInput > div > div > input:focus-visible,
 .stSelectbox [data-baseweb="select"] > div:focus,
 .stSelectbox [data-baseweb="select"] > div:focus-within,
 .stSelectbox [data-baseweb="select"] > div:focus-visible {
@@ -237,9 +253,22 @@ input:invalid, select:invalid, textarea:invalid {
 }
 .muted { color: #B3B3B3; font-size: 0.85rem; }
 
+/* ── Button shimmer animation ────────────────────── */
+@keyframes btn-shimmer {
+    0%   { background-position: 200% center; }
+    100% { background-position: -200% center; }
+}
+
 /* ── Buttons (all) ───────────────────────────────── */
 .stButton > button {
-    background-color: #1DB954 !important;
+    background: linear-gradient(
+        90deg,
+        #1DB954 0%, #1DB954 38%,
+        #28e065 50%,
+        #1DB954 62%, #1DB954 100%
+    ) !important;
+    background-size: 200% auto !important;
+    animation: btn-shimmer 5s linear infinite !important;
     color: #000000 !important;
     border: none !important;
     border-radius: 50px !important;
@@ -248,8 +277,9 @@ input:invalid, select:invalid, textarea:invalid {
     font-size: 0.95rem !important;
     font-family: 'Inter', sans-serif !important;
     letter-spacing: 0.02em !important;
-    transition: all 0.2s !important;
+    transition: transform 0.2s, opacity 0.2s !important;
     width: auto !important;
+    white-space: nowrap !important;
 }
 .stButton > button:hover {
     background-color: #1ed760 !important;
@@ -262,15 +292,6 @@ input:invalid, select:invalid, textarea:invalid {
     transform: none !important;
 }
 
-/* ── Hidden share trigger (real st.button) ───────── */
-.hidden-trigger {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    opacity: 0;
-    pointer-events: none;
-}
 
 /* ── Spinner / Divider ───────────────────────────── */
 .stSpinner > div { border-top-color: #1DB954 !important; }
@@ -278,6 +299,39 @@ hr { border-color: #282828 !important; }
 </style>
 """, unsafe_allow_html=True)
 
+
+# ── MutationObserver: strip any dynamically-injected red borders ──────────────
+st.markdown(r"""
+<script>
+(function() {
+  function fixEl(el) {
+    if (!el || !el.style) return;
+    var s = el.getAttribute('style') || '';
+    if (/red|#[eE][0-9a-fA-F]{4}[0-9a-fA-F]{0,1}|rgb\s*\(\s*2[0-9]{2}\s*,\s*[0-5]/.test(s)) {
+      el.style.setProperty('border-color', '#1DB954', 'important');
+      el.style.setProperty('box-shadow', '0 0 0 2px #1DB954', 'important');
+      el.style.setProperty('outline', 'none', 'important');
+    }
+  }
+  function scanAll() {
+    document.querySelectorAll('[style]').forEach(fixEl);
+  }
+  var obs = new MutationObserver(function(ms) {
+    ms.forEach(function(m) {
+      if (m.type === 'attributes') fixEl(m.target);
+      if (m.type === 'childList') { m.addedNodes.forEach(function(n) {
+        if (n.nodeType === 1) { fixEl(n); n.querySelectorAll && n.querySelectorAll('[style]').forEach(fixEl); }
+      }); }
+    });
+  });
+  if (document.body) obs.observe(document.body, {attributes: true, attributeFilter: ['style'], subtree: true, childList: true});
+  else document.addEventListener('DOMContentLoaded', function() {
+    obs.observe(document.body, {attributes: true, attributeFilter: ['style'], subtree: true, childList: true});
+  });
+  scanAll();
+})();
+</script>
+""", unsafe_allow_html=True)
 
 # ── Clients ───────────────────────────────────────────────────────────────────
 import spotipy
@@ -469,7 +523,8 @@ def generate_fal_background(width=800, height=800):
                 "prompt": (
                     "90s indie zine sticker-bomb abstract background, bright halftone dots, "
                     "scratchy grain texture, hand-drawn doodle marks, messy collage paper texture, "
-                    "no text, no real objects, abstract art, vibrant colors, psychedelic, "
+                    "absolutely no text, no words, no letters, no numbers, no writing of any kind, "
+                    "no real objects, abstract art, vibrant colors, psychedelic, "
                     "deliberately messy, punk aesthetic"
                 ),
                 "image_size": {"width": width, "height": height},
@@ -524,7 +579,7 @@ def make_collage(bg_url, cover_urls, playlist_id, canvas_size=(800, 800)):
         _paste_rgba(canvas, shadow_rot, (x + 8, y + 8))
         _paste_rgba(canvas, pol_rot, (x, y))
 
-    # Spotify scan code — centered horizontally at ~65% down
+    # Spotify scan code — 400px wide, upper-centre of canvas
     try:
         scan_url = (
             f"https://scannables.scdn.co/uri/plain/png/000000/white/640/"
@@ -532,11 +587,11 @@ def make_collage(bg_url, cover_urls, playlist_id, canvas_size=(800, 800)):
         )
         r = requests.get(scan_url, timeout=10)
         scan = Image.open(io.BytesIO(r.content)).convert("RGBA")
-        target_w = 220
+        target_w = 400
         ratio = target_w / scan.width
         scan = scan.resize((target_w, int(scan.height * ratio)), Image.LANCZOS)
         sx = (canvas_size[0] - target_w) // 2
-        sy = int(canvas_size[1] * 0.65)
+        sy = int(canvas_size[1] * 0.18)
         _paste_rgba(canvas, scan, (sx, sy))
     except Exception:
         pass
@@ -560,97 +615,6 @@ def make_collage(bg_url, cover_urls, playlist_id, canvas_size=(800, 800)):
     return canvas.convert("RGB")
 
 
-# ── HTML for animated share button (renders in iframe via components.html) ────
-SHARE_BTN_HTML = """<!DOCTYPE html>
-<html>
-<head>
-<meta charset="utf-8">
-<style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 60px;
-    background: transparent;
-    font-family: 'Inter', 'Helvetica Neue', sans-serif;
-}
-
-@keyframes shimmer {
-    0%   { background-position: -250% center; }
-    100% { background-position: 250% center; }
-}
-
-.shimmer-btn {
-    background-color: #1DB954;
-    border: none;
-    border-radius: 50px;
-    padding: 0.6rem 2.2rem;
-    cursor: pointer;
-    font-family: inherit;
-    font-weight: 700;
-    font-size: 0.95rem;
-    letter-spacing: 0.02em;
-    transition: background-color 0.2s ease, transform 0.15s ease, padding 0.3s ease;
-}
-.shimmer-btn:hover {
-    background-color: #1ed760;
-    transform: scale(1.04);
-    padding-left: 2.9rem;
-}
-
-.shimmer-text {
-    display: inline-block;
-    background: linear-gradient(
-        90deg,
-        #000 0%, #000 25%,
-        #fff 40%, #d4f7e0 50%,
-        #000 60%, #000 100%
-    );
-    background-size: 250% auto;
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    animation: shimmer 2.8s linear infinite;
-    white-space: nowrap;
-}
-
-.part-are {
-    display: inline-block;
-    max-width: 0;
-    overflow: hidden;
-    opacity: 0;
-    vertical-align: middle;
-    transition: max-width 0.35s ease, opacity 0.25s ease;
-    white-space: nowrap;
-}
-.shimmer-btn:hover .part-are {
-    max-width: 2.8em;
-    opacity: 1;
-}
-</style>
-</head>
-<body>
-<button class="shimmer-btn" onclick="triggerShare()">
-  <span class="shimmer-text"
-    >sh<span class="part-are">are&nbsp;</span>immer</span>
-</button>
-<script>
-function triggerShare() {
-  try {
-    var btns = window.parent.document.querySelectorAll('button');
-    for (var i = 0; i < btns.length; i++) {
-      var txt = (btns[i].innerText || btns[i].textContent || '').trim();
-      if (txt === '🎬') {
-        btns[i].click();
-        return;
-      }
-    }
-  } catch(e) { console.warn('Share trigger:', e); }
-}
-</script>
-</body>
-</html>"""
 
 
 # ── Session state init ────────────────────────────────────────────────────────
@@ -701,7 +665,9 @@ with col_img:
         st.image(cover_url, width=120)
 with col_meta:
     st.markdown(
-        f'<div style="font-weight:700; font-size:1.1rem; padding-top:0.4rem;">{playlist_name}</div>',
+        f'<div style="display:flex; align-items:center; height:120px;">'
+        f'<div style="font-weight:700; font-size:1.1rem;">{playlist_name}</div>'
+        f'</div>',
         unsafe_allow_html=True
     )
 
@@ -742,10 +708,8 @@ if run_button and query:
     st.markdown("---")
     st.markdown('<div class="section-header">Scanning candidates</div>', unsafe_allow_html=True)
 
-    with st.spinner("Finding British shows via Tavily..."):
+    with st.spinner("Searching Spotify and Tavily..."):
         tavily_shows = find_shows_via_tavily(query)
-
-    with st.spinner("Searching Spotify..."):
         candidates, tavily_added = search_episodes(query, limit=6, extra_queries=tavily_shows)
 
     if tavily_shows:
@@ -758,16 +722,10 @@ if run_button and query:
             f'<div class="muted">{len(candidates)} candidates found. Classifying each...</div>',
             unsafe_allow_html=True
         )
-        progress = st.empty()
-        for i, ep in enumerate(candidates):
-            progress.markdown(
-                f'<div class="muted" style="font-style:italic;">'
-                f'Classifying {i + 1} of {len(candidates)}: {ep["name"][:50]}...</div>',
-                unsafe_allow_html=True
-            )
-            label = classify_accent(ep["name"], ep["description"])
-            st.session_state["candidates"].append({"ep": ep, "label": label})
-        progress.empty()
+        with st.spinner("Classifying candidates..."):
+            for ep in candidates:
+                label = classify_accent(ep["name"], ep["description"])
+                st.session_state["candidates"].append({"ep": ep, "label": label})
         st.rerun()
 
 elif run_button and not query:
@@ -804,12 +762,21 @@ if st.session_state.get("candidates"):
             col_info, col_btn = st.columns([4, 1])
             with col_info:
                 title_display = ep["name"][:70] + ("..." if len(ep["name"]) > 70 else "")
+                show_name = ep["show"]
+                show_line = (
+                    f'<div class="muted">{show_name}</div>'
+                    if show_name and show_name != "Unknown show" else ""
+                )
                 st.markdown(
                     f'<div style="color:#fff;font-weight:500;font-size:0.95rem;margin-bottom:0.15rem;">'
                     f'{title_display}</div>'
-                    f'<div class="muted">{ep["show"]}</div>',
+                    f'{show_line}',
                     unsafe_allow_html=True
                 )
+                if ep.get("description"):
+                    with st.expander("Episode description"):
+                        desc = ep["description"][:200]
+                        st.markdown(f'<div class="muted">{desc}{"..." if len(ep["description"]) > 200 else ""}</div>', unsafe_allow_html=True)
                 if ep.get("audio_preview_url"):
                     st.audio(ep["audio_preview_url"])
 
@@ -819,7 +786,8 @@ if st.session_state.get("candidates"):
                     st.button("✅ Added", key=f"btn_{uri}", disabled=True)
                 else:
                     if st.button("+ Add", key=f"btn_{uri}"):
-                        add_to_playlist(target_playlist_id, uri)
+                        with st.spinner("Adding to playlist..."):
+                            add_to_playlist(target_playlist_id, uri)
                         st.session_state["added_uris"].add(uri)
                         st.rerun()
 
@@ -835,29 +803,18 @@ st.markdown(
 )
 st.markdown("<br>", unsafe_allow_html=True)
 
-# Animated visual button (iframe) + hidden real trigger
 col1, col2, col3 = st.columns([2, 1, 2])
 with col2:
-    components.html(SHARE_BTN_HTML, height=60)
-
-# Hidden real trigger — 🎬 emoji so JS can find it by text
-st.markdown('<div class="hidden-trigger">', unsafe_allow_html=True)
-share_clicked = st.button("🎬", key="share_btn")
-st.markdown('</div>', unsafe_allow_html=True)
+    share_clicked = st.button("Share immer", key="share_btn", use_container_width=True)
 
 if share_clicked:
     fal_warning = None
 
-    with st.spinner("Generating background via fal..."):
+    with st.spinner("Generating your collage..."):
         bg_url = generate_fal_background()
-
-    if bg_url is None:
-        fal_warning = "fal generation failed. Using a plain dark background instead."
-
-    with st.spinner("Fetching playlist cover art..."):
+        if bg_url is None:
+            fal_warning = "fal generation failed. Using a plain dark background instead."
         cover_urls = get_playlist_cover_urls(target_playlist_id, limit=14)
-
-    with st.spinner("Compositing collage..."):
         collage = make_collage(bg_url, cover_urls, target_playlist_id)
 
     if fal_warning:
