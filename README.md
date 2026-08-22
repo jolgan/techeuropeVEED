@@ -36,23 +36,79 @@ We are including this honestly rather than hiding it. The training jobs are real
 - Audio previews are only available for episodes where Spotify provides a preview URL. Not every episode has one.
 - Real time skip or listen based adaptation was part of the original stretch goal but was not built in the time available.
 
-## Setup
+## Run locally (judge instructions)
+
+### What you need
+
+- Python 3.10 or newer (the project was tested with Python 3.12)
+- A Spotify account with at least one playlist you own
+- API credentials for Spotify, OpenAI, Tavily, and fal
+
+The app writes real podcast episodes to the Spotify playlist selected in the UI. For a safe test, create a new empty Spotify playlist first (for example, `immer judge test`).
+
+### 1. Clone and create a virtual environment
 
 ```bash
-pip install spotipy python-dotenv openai tavily-python fal-client Pillow streamlit
+git clone https://github.com/jolgan/techeuropeVEED.git
+cd techeuropeVEED
+python3 -m venv venv
+source venv/bin/activate
 ```
 
-`.env` file:
+On Windows PowerShell, activate with:
+
+```powershell
+.\venv\Scripts\Activate.ps1
 ```
-SPOTIFY_CLIENT_ID=...
-SPOTIFY_CLIENT_SECRET=...
+
+### 2. Install dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+### 3. Configure API credentials
+
+Create a `.env` file in the repository root. It is ignored by Git and must never be committed.
+
+```dotenv
+SPOTIFY_CLIENT_ID=your_spotify_client_id
+SPOTIFY_CLIENT_SECRET=your_spotify_client_secret
 SPOTIFY_REDIRECT_URI=http://127.0.0.1:8888/callback
-OPENAI_API_KEY=...
-TAVILY_API_KEY=...
-FAL_KEY=...
+OPENAI_API_KEY=your_openai_api_key
+TAVILY_API_KEY=your_tavily_api_key
+FAL_KEY=your_fal_api_key
 ```
 
-Run with:
+Where to get each value:
+
+- **Spotify:** create an app in the [Spotify Developer Dashboard](https://developer.spotify.com/dashboard). In that app's settings, add **exactly** `http://127.0.0.1:8888/callback` as a Redirect URI, then copy its Client ID and Client Secret into `.env`.
+- **OpenAI:** create an API key in the OpenAI platform. It is used to classify candidate episode descriptions as British-accented or not.
+- **Tavily:** create an API key in the Tavily dashboard. It broadens the podcast-show search beyond Spotify's own results.
+- **fal:** create a fal API key. It is used only when generating the optional shareable playlist collage.
+
+When first launched, Spotify opens a browser window asking the judge to authorise the app. Approve the requested playlist permissions. The OAuth callback then returns to `127.0.0.1:8888`; do not change the redirect URI in either Spotify or `.env`.
+
+### 4. Start the app
+
 ```bash
 streamlit run app.py
 ```
+
+Streamlit will print a local URL, normally `http://localhost:8501`. Open it in a browser. To stop the app, press `Ctrl+C` in the terminal.
+
+### Quick judging path
+
+1. Authorise Spotify when prompted.
+2. Select the empty test playlist created above.
+3. Search for a topic such as `British comedy podcast`, `British history`, or `BBC science`.
+4. Review the British matches and click **Add** on one or more episodes.
+5. Use **Open playlist in Spotify ↗** to confirm the additions in Spotify (it opens in a new tab).
+6. In **Share**, hover over **shimmer** to see it expand to **share immer**, then click it to generate a downloadable collage. The share step needs a valid `FAL_KEY`; searching and adding episodes do not depend on fal.
+
+### Troubleshooting
+
+- **Spotify redirect error:** ensure the callback in the Spotify Developer Dashboard and `SPOTIFY_REDIRECT_URI` are both exactly `http://127.0.0.1:8888/callback`.
+- **Spotify login uses the wrong account:** sign out of Spotify in the browser or use a private window, then restart Streamlit and authorise again.
+- **No results or an API error:** verify the relevant key in `.env`, then stop and restart Streamlit after changing it.
+- **Collage falls back to a plain background:** the fal request was unavailable; playlist cover art and the Spotify scan code are still generated.
