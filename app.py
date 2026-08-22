@@ -3,9 +3,11 @@ import streamlit.components.v1 as components
 import os
 import io
 import random
+import base64
 from dotenv import load_dotenv
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 import requests
+import fal_client
 
 load_dotenv()
 
@@ -16,6 +18,59 @@ st.set_page_config(
     layout="centered",
     initial_sidebar_state="collapsed"
 )
+
+# ── Ambient background ────────────────────────────────────────────────────────
+_BG_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "background.png")
+
+def _ensure_background():
+    if os.path.exists(_BG_PATH):
+        return
+    try:
+        result = fal_client.subscribe(
+            "fal-ai/flux/schnell",
+            arguments={
+                "prompt": (
+                    "dark atmospheric abstract background art, near-black charcoal base colour, "
+                    "soft glowing blurred gradients of muted deep purple and teal and forest green, "
+                    "very low opacity ambient light bleeding through like coloured stage lighting in fog, "
+                    "no text, no objects, no faces, no logos, cinematic dark texture, "
+                    "moody ambient, luma.com event page aesthetic, subtle grain"
+                ),
+                "image_size": {"width": 1280, "height": 720},
+                "num_inference_steps": 4,
+                "num_images": 1,
+            },
+        )
+        r = requests.get(result["images"][0]["url"], timeout=15)
+        img = Image.open(io.BytesIO(r.content)).convert("RGB")
+        img = img.resize((1280, 720), Image.LANCZOS)
+        img.save(_BG_PATH, "PNG", optimize=True)
+    except Exception:
+        # Fallback: dark gradient placeholder
+        img = Image.new("RGB", (1280, 720), (10, 10, 16))
+        img.save(_BG_PATH, "PNG")
+
+def _bg_b64():
+    with open(_BG_PATH, "rb") as f:
+        return base64.b64encode(f.read()).decode()
+
+@st.cache_resource(show_spinner="Preparing ambient background...")
+def _load_bg_b64():
+    _ensure_background()
+    return _bg_b64()
+
+_BG = _load_bg_b64()
+
+st.markdown(f"""<style>
+.stApp {{
+    background-image:
+        linear-gradient(rgba(0,0,0,0.42), rgba(0,0,0,0.42)),
+        url('data:image/png;base64,{_BG}');
+    background-size: cover;
+    background-attachment: fixed;
+    background-position: center;
+}}
+</style>""", unsafe_allow_html=True)
 
 # --- CSS ---
 st.markdown("""
@@ -229,7 +284,6 @@ import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 from openai import OpenAI
 from tavily import TavilyClient
-import fal_client
 
 sp = spotipy.Spotify(auth_manager=SpotifyOAuth(
     client_id=os.getenv("SPOTIFY_CLIENT_ID"),
