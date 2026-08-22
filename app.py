@@ -253,16 +253,8 @@ input:invalid, select:invalid, textarea:invalid {
 }
 .muted { color: #B3B3B3; font-size: 0.85rem; }
 
-/* ── Button shimmer animation ────────────────────── */
-@keyframes btn-sheen {
-    0%   { left: -80%; }
-    100% { left: 150%; }
-}
-
 /* ── Buttons (all) ───────────────────────────────── */
 .stButton > button {
-    position: relative !important;
-    overflow: hidden !important;
     background: #1DB954 !important;
     color: #000000 !important;
     border: none !important;
@@ -276,23 +268,6 @@ input:invalid, select:invalid, textarea:invalid {
     width: auto !important;
     white-space: nowrap !important;
 }
-.stButton > button::after {
-    content: '' !important;
-    position: absolute !important;
-    top: 0 !important;
-    left: -80% !important;
-    width: 60% !important;
-    height: 100% !important;
-    background: linear-gradient(
-        90deg,
-        transparent 0%,
-        rgba(255,255,255,0.45) 50%,
-        transparent 100%
-    ) !important;
-    animation: btn-sheen 2.2s ease-in-out infinite !important;
-    border-radius: 50px !important;
-    pointer-events: none !important;
-}
 .stButton > button:hover {
     background: #1ed760 !important;
     transform: scale(1.04);
@@ -303,9 +278,60 @@ input:invalid, select:invalid, textarea:invalid {
     cursor: default !important;
     transform: none !important;
 }
-.stButton > button:disabled::after {
-    animation: none !important;
-    display: none !important;
+
+/* ── Share button: a self-contained, slow background shimmer ───────────── */
+@keyframes share-shimmer {
+    from { background-position: 200% 0, 0 0; }
+    to   { background-position: -200% 0, 0 0; }
+}
+
+/* Streamlit adds st-key-share_btn to the keyed widget wrapper. */
+.st-key-share_btn {
+    display: flex;
+    justify-content: center;
+}
+.st-key-share_btn button {
+    position: relative !important;
+    overflow: hidden !important;
+    width: 8.5rem !important;
+    min-width: 8.5rem !important;
+    padding: 0.6rem 1rem !important;
+    border-radius: 50px !important;
+    background-color: #1DB954 !important;
+    background-image:
+        linear-gradient(110deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.12) 45%, rgba(255,255,255,0.12) 55%, rgba(255,255,255,0) 100%),
+        linear-gradient(#1DB954, #1DB954) !important;
+    background-size: 200% 100%, 100% 100% !important;
+    background-repeat: no-repeat !important;
+    animation: share-shimmer 5s linear infinite !important;
+    transition: width 260ms ease, min-width 260ms ease, background-color 200ms ease !important;
+    transform: none !important;
+}
+.st-key-share_btn button > div,
+.st-key-share_btn button p {
+    font-size: 0 !important;
+    line-height: 1 !important;
+}
+.st-key-share_btn button::after {
+    content: "shimmer";
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    color: #000000;
+    font: 700 0.95rem/1 'Inter', sans-serif;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+    pointer-events: none;
+}
+.st-key-share_btn button:hover {
+    width: 10.75rem !important;
+    min-width: 10.75rem !important;
+    background-color: #1ed760 !important;
+    transform: none !important;
+}
+.st-key-share_btn button:hover::after {
+    content: "share immer";
 }
 
 
@@ -821,7 +847,7 @@ st.markdown("<br>", unsafe_allow_html=True)
 
 col1, col2, col3 = st.columns([2, 1, 2])
 with col2:
-    share_clicked = st.button("Share immer", key="share_btn", use_container_width=True)
+    share_clicked = st.button("Share immer", key="share_btn")
 
 if share_clicked:
     fal_warning = None
