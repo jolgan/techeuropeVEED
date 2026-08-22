@@ -280,9 +280,15 @@ input:invalid, select:invalid, textarea:invalid {
 }
 
 /* ── Share button: a self-contained, slow background shimmer ───────────── */
-@keyframes share-shimmer {
-    from { background-position: 200% 0, 0 0; }
-    to   { background-position: -200% 0, 0 0; }
+@keyframes share-glint {
+    0%, 12% { transform: translateX(-220%) skewX(-16deg); }
+    52%, 100% { transform: translateX(420%) skewX(-16deg); }
+}
+@keyframes type-share {
+    0%   { content: "shimmer"; }
+    35%  { content: "sha immer"; }
+    68%  { content: "shar immer"; }
+    100% { content: "share immer"; }
 }
 
 /* Cover both Streamlit's keyed element and its nested button container. */
@@ -304,12 +310,6 @@ input:invalid, select:invalid, textarea:invalid {
     padding: 0.6rem 1rem !important;
     border-radius: 50px !important;
     background-color: #1DB954 !important;
-    background-image:
-        linear-gradient(110deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.20) 45%, rgba(255,255,255,0.20) 55%, rgba(255,255,255,0) 100%),
-        linear-gradient(#1DB954, #1DB954) !important;
-    background-size: 200% 100%, 100% 100% !important;
-    background-repeat: no-repeat !important;
-    animation: share-shimmer 5s linear infinite !important;
     transition: width 300ms ease, min-width 300ms ease, background-color 200ms ease !important;
     transform: none !important;
     transform-origin: center center !important;
@@ -318,9 +318,22 @@ input:invalid, select:invalid, textarea:invalid {
 [class*="st-key-share_btn"] button p {
     opacity: 0 !important;
 }
+[class*="st-key-share_btn"] button::before {
+    content: "";
+    position: absolute;
+    z-index: 1;
+    top: -35%;
+    bottom: -35%;
+    left: 0;
+    width: 58%;
+    background: linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,0.24), rgba(255,255,255,0));
+    animation: share-glint 5s ease-in-out infinite;
+    pointer-events: none;
+}
 [class*="st-key-share_btn"] button::after {
     content: "shimmer";
     position: absolute;
+    z-index: 2;
     inset: 0;
     display: grid;
     place-items: center;
@@ -340,7 +353,7 @@ input:invalid, select:invalid, textarea:invalid {
     transform: none !important;
 }
 [class*="st-key-share_btn"] button:hover::after {
-    content: "share immer";
+    animation: type-share 360ms steps(1, end) forwards;
 }
 
 
