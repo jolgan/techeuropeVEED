@@ -316,31 +316,22 @@ input:invalid, select:invalid, textarea:invalid {
 }
 [class*="st-key-share_btn"] button > div,
 [class*="st-key-share_btn"] button p {
-    display: none !important;
+    opacity: 0 !important;
 }
-[class*="st-key-share_btn"] button::before,
 [class*="st-key-share_btn"] button::after {
-    display: block;
+    content: "shimmer";
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
     color: #000000;
     font-family: inherit;
-    font-size: 0 !important;
+    font-size: 0.95rem;
     font-weight: inherit;
     line-height: 1;
     letter-spacing: 0.02em;
     white-space: nowrap;
     pointer-events: none;
-}
-[class*="st-key-share_btn"] button::before {
-    content: "sh";
-    font-size: 0.95rem !important;
-}
-[class*="st-key-share_btn"] button::after {
-    content: "are immer";
-    width: 3.2em;
-    overflow: hidden;
-    text-align: right;
-    font-size: 0.95rem !important;
-    transition: width 320ms steps(4, end);
 }
 [class*="st-key-share_btn"] button:hover {
     width: 10.75rem !important;
@@ -349,7 +340,7 @@ input:invalid, select:invalid, textarea:invalid {
     transform: none !important;
 }
 [class*="st-key-share_btn"] button:hover::after {
-    width: 5.55em;
+    content: "share immer";
 }
 
 
