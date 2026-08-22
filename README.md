@@ -22,14 +22,14 @@ The core loop:
 
 - **Spotify Web API** (via `spotipy`) — OAuth, playlist read, playlist write. Fully working end-to-end against a real account and a real playlist (`in regards to the scrumping`).
 - **Web search** — used in place of a literal Tavily API call to source lists of well-known British and American podcasts/shows for the training dataset, and to research the Pioneer API's real endpoint contracts mid-build.
-- **Pioneer (Fastino)** — attempted: see "What we tried and why it's not in the final demo" below.
+- **Pioneer (Fastino)** — attempted: see "What I tried and why it's not in the final demo" below.
 - **OpenAI** — [used for the classification step in the final working demo / see below]
 - **fal** — used for [demo video visual/audio polish, if applicable]
-- **h (computer-use agents)** — considered for browser-based podcast sourcing where no API exists, but the core loop here is fully API-native (Spotify + classifier), so we didn't force it in. Noted here for transparency about what we evaluated.
+- **h (computer-use agents)** — considered for browser-based podcast sourcing where no API exists, but the core loop here is fully API-native (Spotify + classifier), so I didn't force it in. Noted here for transparency about what we evaluated.
 
-## What we tried and why it's not in the final demo: the Pioneer classifier
+## What I tried and why it's not in the final demo: the Pioneer classifier
 
-We built a full, working pipeline against Pioneer's real API:
+I built a full, working pipeline against Pioneer's real API:
 
 - Assembled a 150-row labelled dataset (75 British / 75 not-British) from real Spotify episode metadata across 30 well-known shows (e.g. *No Such Thing As A Fish*, *The Rest Is History* vs. *The Joe Rogan Experience*, *Crime Junkie*).
 - Uploaded it via Pioneer's three-step dataset flow (`/felix/datasets/upload/url` → S3 PUT → `/felix/datasets/upload/process`), confirmed `status: ready`.
@@ -38,9 +38,9 @@ We built a full, working pipeline against Pioneer's real API:
   - shuffled data (in case of ordering bias in the train/validation split),
   - titles-only text (in case long sponsor-boilerplate descriptions were diluting signal).
 
-Every run trained "successfully" (loss curves looked plausible) but the resulting classifier collapsed to predicting **"british" for every input**, including unambiguous American shows like *Armchair Expert* and *The Bill Simmons Podcast*, at 97–99.99% confidence. This persisted across all four variations, which rules out our data prep as the cause and points to either a training configuration issue specific to this task shape on Pioneer's platform, or a GLiNER2 limitation for this kind of subtle binary text classification — we didn't have time to isolate which, within the hackathon window.
+Every run trained "successfully" (loss curves looked plausible) but the resulting classifier collapsed to predicting **"british" for every input**, including unambiguous American shows like *Armchair Expert* and *The Bill Simmons Podcast*, at 97–99.99% confidence. This persisted across all four variations, which rules out my data prep as the cause and points to either a training configuration issue specific to this task shape on Pioneer's platform, or a GLiNER2 limitation for this kind of subtle binary text classification — I didn't have time to isolate which, within the hackathon window.
 
-We're including this rather than hiding it: the failed job IDs are real and inspectable via Pioneer's API (`GET /felix/training-jobs/:id`) if useful for debugging, and we think a transparent account of a legitimate ML attempt that didn't pan out is more honest than a black-box "it works" claim.
+I'm including this rather than hiding it: the failed job IDs are real and inspectable via Pioneer's API (`GET /felix/training-jobs/:id`) if useful for debugging, and I think a transparent account of a legitimate ML attempt that didn't pan out is more honest than a black-box "it works" claim.
 
 ## Known limitations
 
