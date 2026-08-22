@@ -285,53 +285,71 @@ input:invalid, select:invalid, textarea:invalid {
     to   { background-position: -200% 0, 0 0; }
 }
 
-/* Streamlit adds st-key-share_btn to the keyed widget wrapper. */
-.st-key-share_btn {
+/* Cover both Streamlit's keyed element and its nested button container. */
+[class*="st-key-share_btn"],
+[class*="st-key-share_btn"] .stButton {
     display: flex;
     justify-content: center;
+    width: 100%;
 }
-.st-key-share_btn button {
+[class*="st-key-share_btn"] button {
     position: relative !important;
     overflow: hidden !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
     width: 8.5rem !important;
     min-width: 8.5rem !important;
+    margin: 0 auto !important;
     padding: 0.6rem 1rem !important;
     border-radius: 50px !important;
     background-color: #1DB954 !important;
     background-image:
-        linear-gradient(110deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.12) 45%, rgba(255,255,255,0.12) 55%, rgba(255,255,255,0) 100%),
+        linear-gradient(110deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.20) 45%, rgba(255,255,255,0.20) 55%, rgba(255,255,255,0) 100%),
         linear-gradient(#1DB954, #1DB954) !important;
     background-size: 200% 100%, 100% 100% !important;
     background-repeat: no-repeat !important;
     animation: share-shimmer 5s linear infinite !important;
-    transition: width 260ms ease, min-width 260ms ease, background-color 200ms ease !important;
+    transition: width 300ms ease, min-width 300ms ease, background-color 200ms ease !important;
     transform: none !important;
+    transform-origin: center center !important;
 }
-.st-key-share_btn button > div,
-.st-key-share_btn button p {
-    font-size: 0 !important;
-    line-height: 1 !important;
+[class*="st-key-share_btn"] button > div,
+[class*="st-key-share_btn"] button p {
+    display: none !important;
 }
-.st-key-share_btn button::after {
-    content: "shimmer";
-    position: absolute;
-    inset: 0;
-    display: grid;
-    place-items: center;
+[class*="st-key-share_btn"] button::before,
+[class*="st-key-share_btn"] button::after {
+    display: block;
     color: #000000;
-    font: 700 0.95rem/1 'Inter', sans-serif;
+    font-family: inherit;
+    font-size: 0 !important;
+    font-weight: inherit;
+    line-height: 1;
     letter-spacing: 0.02em;
     white-space: nowrap;
     pointer-events: none;
 }
-.st-key-share_btn button:hover {
+[class*="st-key-share_btn"] button::before {
+    content: "sh";
+    font-size: 0.95rem !important;
+}
+[class*="st-key-share_btn"] button::after {
+    content: "are immer";
+    width: 3.2em;
+    overflow: hidden;
+    text-align: right;
+    font-size: 0.95rem !important;
+    transition: width 320ms steps(4, end);
+}
+[class*="st-key-share_btn"] button:hover {
     width: 10.75rem !important;
     min-width: 10.75rem !important;
     background-color: #1ed760 !important;
     transform: none !important;
 }
-.st-key-share_btn button:hover::after {
-    content: "share immer";
+[class*="st-key-share_btn"] button:hover::after {
+    width: 5.55em;
 }
 
 
