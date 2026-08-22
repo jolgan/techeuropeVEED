@@ -263,12 +263,14 @@ input:invalid, select:invalid, textarea:invalid {
 .stButton > button {
     background: linear-gradient(
         90deg,
-        #1DB954 0%, #1DB954 38%,
-        #28e065 50%,
-        #1DB954 62%, #1DB954 100%
+        #1DB954 0%, #1DB954 30%,
+        rgba(255,255,255,0.35) 45%,
+        rgba(255,255,255,0.55) 50%,
+        rgba(255,255,255,0.35) 55%,
+        #1DB954 70%, #1DB954 100%
     ) !important;
-    background-size: 200% auto !important;
-    animation: btn-shimmer 5s linear infinite !important;
+    background-size: 300% auto !important;
+    animation: btn-shimmer 3s linear infinite !important;
     color: #000000 !important;
     border: none !important;
     border-radius: 50px !important;
@@ -277,16 +279,26 @@ input:invalid, select:invalid, textarea:invalid {
     font-size: 0.95rem !important;
     font-family: 'Inter', sans-serif !important;
     letter-spacing: 0.02em !important;
-    transition: transform 0.2s, opacity 0.2s !important;
+    transition: transform 0.2s !important;
     width: auto !important;
     white-space: nowrap !important;
 }
 .stButton > button:hover {
-    background-color: #1ed760 !important;
+    background: linear-gradient(
+        90deg,
+        #1ed760 0%, #1ed760 30%,
+        rgba(255,255,255,0.4) 45%,
+        rgba(255,255,255,0.65) 50%,
+        rgba(255,255,255,0.4) 55%,
+        #1ed760 70%, #1ed760 100%
+    ) !important;
+    background-size: 300% auto !important;
+    animation: btn-shimmer 3s linear infinite !important;
     transform: scale(1.04);
 }
 .stButton > button:disabled {
-    background-color: #282828 !important;
+    background: #282828 !important;
+    animation: none !important;
     color: #B3B3B3 !important;
     cursor: default !important;
     transform: none !important;
