@@ -254,23 +254,16 @@ input:invalid, select:invalid, textarea:invalid {
 .muted { color: #B3B3B3; font-size: 0.85rem; }
 
 /* ── Button shimmer animation ────────────────────── */
-@keyframes btn-shimmer {
-    0%   { background-position: 200% center; }
-    100% { background-position: -200% center; }
+@keyframes btn-sheen {
+    0%   { left: -80%; }
+    100% { left: 150%; }
 }
 
 /* ── Buttons (all) ───────────────────────────────── */
 .stButton > button {
-    background: linear-gradient(
-        90deg,
-        #1DB954 0%, #1DB954 30%,
-        rgba(255,255,255,0.35) 45%,
-        rgba(255,255,255,0.55) 50%,
-        rgba(255,255,255,0.35) 55%,
-        #1DB954 70%, #1DB954 100%
-    ) !important;
-    background-size: 300% auto !important;
-    animation: btn-shimmer 3s linear infinite !important;
+    position: relative !important;
+    overflow: hidden !important;
+    background: #1DB954 !important;
     color: #000000 !important;
     border: none !important;
     border-radius: 50px !important;
@@ -279,29 +272,40 @@ input:invalid, select:invalid, textarea:invalid {
     font-size: 0.95rem !important;
     font-family: 'Inter', sans-serif !important;
     letter-spacing: 0.02em !important;
-    transition: transform 0.2s !important;
+    transition: transform 0.2s, background 0.2s !important;
     width: auto !important;
     white-space: nowrap !important;
 }
-.stButton > button:hover {
+.stButton > button::after {
+    content: '' !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: -80% !important;
+    width: 60% !important;
+    height: 100% !important;
     background: linear-gradient(
         90deg,
-        #1ed760 0%, #1ed760 30%,
-        rgba(255,255,255,0.4) 45%,
-        rgba(255,255,255,0.65) 50%,
-        rgba(255,255,255,0.4) 55%,
-        #1ed760 70%, #1ed760 100%
+        transparent 0%,
+        rgba(255,255,255,0.45) 50%,
+        transparent 100%
     ) !important;
-    background-size: 300% auto !important;
-    animation: btn-shimmer 3s linear infinite !important;
+    animation: btn-sheen 2.2s ease-in-out infinite !important;
+    border-radius: 50px !important;
+    pointer-events: none !important;
+}
+.stButton > button:hover {
+    background: #1ed760 !important;
     transform: scale(1.04);
 }
 .stButton > button:disabled {
     background: #282828 !important;
-    animation: none !important;
     color: #B3B3B3 !important;
     cursor: default !important;
     transform: none !important;
+}
+.stButton > button:disabled::after {
+    animation: none !important;
+    display: none !important;
 }
 
 
